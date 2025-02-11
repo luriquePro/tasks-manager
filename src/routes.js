@@ -1,17 +1,29 @@
 const { Router } = require("express");
-const { addTask } = require("./usecase");
+const { addTask, listTasks } = require("./usecase");
 
 const Routes = Router();
 
 Routes.get("/add", (req, res) => {
   const { title, description, is_done } = req.query;
-  const result = addTask({ title, description, is_done});
+  const result = addTask({ title, description, is_done });
 
   if (result.error) {
     return res.status(400).json({ message: result.message });
   }
 
   return res.json(result);
+});
+
+Routes.get("/list", (req, res) => {
+  const { sort, type } = req.query;
+
+  const result = listTasks({ sort, type });
+
+  if (result.error) {
+    return res.status(400).json({ message: result.message });
+  }
+
+  return res.json({ tasks: result.tasks });
 });
 
 module.exports = Routes;

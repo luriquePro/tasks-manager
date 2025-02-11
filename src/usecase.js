@@ -36,6 +36,18 @@ module.exports.addTask = ({ title, description, is_done = false }) => {
   };
 };
 
+module.exports.listTasks = ({ sort = "done", type = "asc" }) => {
+  const validResult = validArgsToSortTasks({ sort, type });
+  if (validResult.error) return validResult;
+
+  const rawTasks = loadTasks();
+  const rawTasksWithId = rawTasks.map((task, index) => ({ ...task, id: index + 1 }));
+
+  const sortedTasks = sortTasks({ tasks: rawTasksWithId, sort, type });
+
+  return { error: false, tasks: sortedTasks };
+};
+
 const validArgsToAddNewTask = ({ title, description }) => {
   if (!title || !description) {
     return {
@@ -77,5 +89,39 @@ const saveTasks = (tasks, path) => {
     fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2), "utf-8");
   } catch (error) {
     console.log(error);
+  }
+};
+
+const validArgsToSortTasks = ({ sort, type }) => {
+  const validParams = new Set(["asc", "desc"]);
+
+  const validSort = new Set(["done", "title", "createdAt"]);
+
+  // Validar se os parametros são asc ou desc
+  if (!validParams.has(type)) {
+    return { error: true, message: "Os valores aceitados para ordenamento são somente 'asc' ou 'desc'" };
+  }
+
+  if (!validSort.has(sort)) {
+    return { error: true, message: "Os valores aceitados para ordenamento são somente 'done', 'title' ou 'createdAt'" };
+  }
+
+  return { error: false };
+};
+
+const sortTasks = ({ tasks, sort, type }) => {
+  if (sort === "done") {
+    if (type === "asc") return tasks.sort((a, b) => a.is_done - b.is_done);
+    return tasks.sort((a, b) => b.is_done - a.is_done);
+  }
+
+  if (sort === "title") {
+    if (type === "asc") return tasks.sort((a, b) => a.title.localeCompare(b.title));
+    return tasks.sort((a, b) => b.title.localeCompare(a.title));
+  }
+
+  if (sort === "createdAt") {
+    if (type === "asc") return tasks.sort((a, b) => a.id - b.id);
+    return tasks.sort((a, b) => b.id - a.id);
   }
 };
