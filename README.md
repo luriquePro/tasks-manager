@@ -12,11 +12,11 @@ Este projeto é uma API simples para gerenciamento de tarefas utilizando Node.js
 
 1. Clone este repositório:
    ```sh
-   git clone https://github.com/luriquePro/task-manager.git
+   git clone https://github.com/luriquePro/tasks-manager.git
    ```
 2. Navegue até o diretório do projeto:
    ```sh
-   cd task-manager
+   cd tasks-manager
    ```
 3. Instale as dependências:
    ```sh
