@@ -48,6 +48,32 @@ module.exports.listTasks = ({ sort = "done", type = "asc" }) => {
   return { error: false, tasks: sortedTasks };
 };
 
+module.exports.deleteTask = ({ id }) => {
+  // validar o id
+  const validResult = validArgsToDeleteTask({ id });
+  if (validResult.error) return validResult;
+
+  const tasks = loadTasks();
+  const taskExists = tasks[Number(id) - 1];
+  if (!taskExists) {
+    return {
+      error: true,
+      message: "Essa tarefa não existe"
+    };
+  }
+
+  // Remover a tarefa
+  tasks.splice(Number(id) - 1, 1);
+
+  // Atualizar os dados
+  saveTasks(tasks);
+
+  return {
+    error: false,
+    message: `A tarefa: ${taskExists.title}. Foi removida com sucesso.`
+  };
+};
+
 const validArgsToAddNewTask = ({ title, description }) => {
   if (!title || !description) {
     return {
@@ -123,5 +149,21 @@ const sortTasks = ({ tasks, sort, type }) => {
   if (sort === "createdAt") {
     if (type === "asc") return tasks.sort((a, b) => a.id - b.id);
     return tasks.sort((a, b) => b.id - a.id);
+  }
+};
+
+const validArgsToDeleteTask = ({ id }) => {
+  if (!id) {
+    return {
+      error: true,
+      message: "O id da tarefa precisa ser informado"
+    };
+  }
+
+  if (isNaN(id)) {
+    return {
+      error: true,
+      message: "O id da tarefa precisa ser um numero"
+    };
   }
 };
