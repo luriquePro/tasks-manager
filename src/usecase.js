@@ -50,7 +50,7 @@ module.exports.listTasks = ({ sort = "done", type = "asc" }) => {
 
 module.exports.deleteTask = ({ id }) => {
   // validar o id
-  const validResult = validArgsToDeleteTask({ id });
+  const validResult = validArgsToDeleteTaskOrDone({ id });
   if (validResult.error) return validResult;
 
   const tasks = loadTasks();
@@ -72,6 +72,32 @@ module.exports.deleteTask = ({ id }) => {
     error: false,
     message: `A tarefa: ${taskExists.title}. Foi removida com sucesso.`
   };
+};
+
+module.exports.changeTaskToDone = ({ id }) => {
+  // validar o id
+  const validResult = validArgsToDeleteTaskOrDone({ id });
+  if (validResult.error) return validResult;
+
+  // Pegar todas as tasks
+  const tasks = loadTasks();
+
+  // Buscar a task escolhida
+  const selectedTask = tasks[Number(id) - 1];
+  if (!selectedTask) {
+    return {
+      error: true,
+      message: "Informe um 'ID' Válido."
+    };
+  }
+
+  // Alterar para Done true
+  tasks[Number(id) - 1].is_done = true;
+
+  // Atualizar as Tasks
+  saveTasks(tasks);
+
+  return { error: false, message: `A tarefa: ${selectedTask.title} foi concluida com sucesso` };
 };
 
 const validArgsToAddNewTask = ({ title, description }) => {
@@ -152,18 +178,8 @@ const sortTasks = ({ tasks, sort, type }) => {
   }
 };
 
-const validArgsToDeleteTask = ({ id }) => {
-  if (!id) {
-    return {
-      error: true,
-      message: "O id da tarefa precisa ser informado"
-    };
-  }
-
-  if (isNaN(id)) {
-    return {
-      error: true,
-      message: "O id da tarefa precisa ser um numero"
-    };
-  }
+const validArgsToDeleteTaskOrDone = ({ id }) => {
+  if (!id) return { error: true, message: "O id da tarefa precisa ser informado" };
+  if (isNaN(id)) return { error: true, message: "O id da tarefa precisa ser um numero" };
+  return { error: false };
 };

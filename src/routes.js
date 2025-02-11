@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { addTask, listTasks, deleteTask } = require("./usecase");
+const { addTask, listTasks, deleteTask, changeTaskToDone } = require("./usecase");
 
 const Routes = Router();
 
@@ -36,4 +36,16 @@ Routes.get("/delete/:id", (req, res) => {
 
   return res.json(result);
 });
+
+Routes.get("/done/:id", (req, res) => {
+  const { id } = req.params;
+  const result = changeTaskToDone({ id });
+
+  if (result.error) {
+    return res.status(400).json({ message: result.message });
+  }
+
+  return res.json(result);
+});
+
 module.exports = Routes;
